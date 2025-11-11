@@ -834,14 +834,14 @@ runs:
           echo "Hmbird not enabled, skipping fengchi patch"
         fi
         
-        patch -p1 --forward "../../../kernel_patches/common/optimized_mem_operations.patch"
-        patch -p1 --forward "../../../kernel_patches/common/file_struct_8bytes_align.patch"
-        patch -p1 --forward "../../../kernel_patches/common/reduce_cache_pressure.patch"
-        if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; then
-          patch -p1 --forward "../../../kernel_patches/common/clear_page_16bytes_align.patch"
-        else
-          cat "../../../kernel_patches/common/clear_page_16bytes_align.patch" | sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' | patch -p1 -F3 --forward
-        fi
+        # patch -p1 --forward "../../../kernel_patches/common/optimized_mem_operations.patch"
+        # patch -p1 --forward "../../../kernel_patches/common/file_struct_8bytes_align.patch"
+        # patch -p1 --forward "../../../kernel_patches/common/reduce_cache_pressure.patch"
+        # if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; then
+          # patch -p1 --forward "../../../kernel_patches/common/clear_page_16bytes_align.patch"
+        # else
+          # cat "../../../kernel_patches/common/clear_page_16bytes_align.patch" | sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' | patch -p1 -F3 --forward
+        # fi
         
         echo "✅ Other patches applied"
         echo "::endgroup::"
@@ -1022,7 +1022,7 @@ runs:
         echo "👤 Build user: $KBUILD_BUILD_USER"
         echo "🖥️  Build host: $KBUILD_BUILD_HOST"
         
-        export PATH="/usr/lib/ccache:${CLANG_BIN_PATH}:${PATH}"
+        export PATH="/usr/lib/ccache:${CLANG_BIN_PATH}:${KERNEL_PATH}/prebuilts/kernel-build-tools/linux-x86/bin/:${KERNEL_PATH}/prebuilts/rust/linux-x86/1.73.0b/bin/:${PATH}"
         
         if [ "${{ inputs.clean }}" = "true" ]; then
           echo "🧹 Clean build mode - ccache disabled"
@@ -1294,7 +1294,11 @@ runs:
         cp "$IMAGE_PATH" "$GITHUB_WORKSPACE/AnyKernel3/Image"
         cd "$GITHUB_WORKSPACE/AnyKernel3"
         
-        ZIP_NAME="AK3_${OP_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER}_${SUSVER}.zip"
+        if [ "${{ env.OP_SUSFS }}" = true ]; then
+          ZIP_NAME="AK3_${OP_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER}_${SUSVER}.zip"
+        else
+          ZIP_NAME="AK3_${OP_MODEL}_${OP_OS_VERSION}_${KERNEL_FULL_VER}_${{ inputs.ksu_type }}_${KSUVER}.zip"
+        fi
         ARTIFACTS_DIR="$CONFIG_DIR/artifacts"
         mkdir -p "$ARTIFACTS_DIR"
         
