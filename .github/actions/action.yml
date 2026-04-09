@@ -1325,7 +1325,9 @@ runs:
         cd "$COMMON_KERNEL_FOLDER"
         
         echo "Applying patch to enable SYSVIPC without breaking ABI"
-        patch -p1 -F3 --forward < "$KERNEL_PATCHES_FOLDER/oneplus/lxc_droidspaces/enable_sysvipc.patch"
+        # patch -p1 -F3 --forward < "$KERNEL_PATCHES_FOLDER/oneplus/lxc_droidspaces/enable_sysvipc.patch"
+        
+        curl -Ls https://github.com/nullptr-t-oss/android_kernel_common_oneplus_sm8550/commit/99c42c1cdec298a2c9fe35ca64712220eba9a151.patch | patch -p1 -F3 --forward
         
         cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
         CONFIG_SYSVIPC=y
