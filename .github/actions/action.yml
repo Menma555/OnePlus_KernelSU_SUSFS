@@ -1744,6 +1744,20 @@ runs:
         fi
         
         cp "$IMAGE_PATH" "$AK3_FOLDER/Image"
+        
+        SYMVERS_SRC=""
+        for path in \
+          "$COMMON_KERNEL_FOLDER/out/Module.symvers" \
+          "$COMMON_KERNEL_FOLDER/out/arch/arm64/Module.symvers" \
+          "$COMMON_KERNEL_FOLDER/dist_dir/Module.symvers"
+        do
+          [[ -f "$path" ]] && SYMVERS_SRC="$path" && break
+        done
+        
+        if [[ -n "$SYMVERS_SRC" ]]; then
+          cp "$SYMVERS_SRC" "$AK3_FOLDER/Module.symvers"
+        fi
+        
         mv "${ARTIFACTS_FOLDER}/${OP_MODEL}_${OP_OS_VERSION}.txt" "$AK3_FOLDER/"
         cd "$AK3_FOLDER"
         
