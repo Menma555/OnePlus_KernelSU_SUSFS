@@ -1128,16 +1128,16 @@ runs:
         echo "✅ BBG LSM added"
         echo "::endgroup::"
 
-    # - name: Apply KSU Hooks
-      # shell: bash
-      # if: ${{ env.NEED_HOOKS == 'true' }}
-      # run: |
-        # set -euo pipefail
-        # echo "::group::Apply KSU hooks"
-        # cd "$COMMON_KERNEL_FOLDER"
-        # patch -p1 < "$KERNEL_PATCHES_FOLDER/next/scope_min_manual_hooks_v1.4.patch"
-        # echo "✅ KSU hooks applied"
-        # echo "::endgroup::"
+    - name: Apply KSU Hooks
+      shell: bash
+      if: ${{ env.NEED_HOOKS == 'true' }}
+      run: |
+        set -euo pipefail
+        echo "::group::Apply KSU hooks"
+        cd "$COMMON_KERNEL_FOLDER"
+        patch -p1 < "$KERNEL_PATCHES_FOLDER/next/scope_min_manual_hooks_v1.4.patch"
+        echo "✅ KSU hooks applied"
+        echo "::endgroup::"
 
     # - name: Apply Other Patches
       # shell: bash
@@ -1325,9 +1325,9 @@ runs:
         cd "$COMMON_KERNEL_FOLDER"
         
         echo "Applying patch to enable SYSVIPC without breaking ABI"
-        # patch -p1 -F3 --forward < "$KERNEL_PATCHES_FOLDER/oneplus/lxc_droidspaces/enable_sysvipc.patch"
+        patch -p1 -F3 --forward < "$KERNEL_PATCHES_FOLDER/oneplus/lxc_droidspaces/enable_sysvipc.patch"
         
-        curl -Ls https://github.com/nullptr-t-oss/android_kernel_common_oneplus_sm8550/commit/99c42c1cdec298a2c9fe35ca64712220eba9a151.patch | patch -p1 --forward
+        # curl -Ls https://github.com/nullptr-t-oss/android_kernel_common_oneplus_sm8550/commit/99c42c1cdec298a2c9fe35ca64712220eba9a151.patch | patch -p1 --forward
         
         cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
         CONFIG_SYSVIPC=y
@@ -1349,16 +1349,16 @@ runs:
         CONFIG_TRACEPOINTS=y
         EOF
 
-    # - name: Add RUST build configs
-      # shell: bash
-      # if: ${{ env.OP_RUST_BUILD == 'true' }}
-      # run: |
-        # set -euo pipefail
-        # echo "Add Build based configs"
-        # cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
-        # CONFIG_ANDROID_BINDER_IPC_RUST=m
-        # CONFIG_RUST=y
-        # EOF
+    - name: Add RUST build configs
+      shell: bash
+      if: ${{ env.OP_RUST_BUILD == 'true' }}
+      run: |
+        set -euo pipefail
+        echo "Add Build based configs"
+        cat >> "$COMMON_KERNEL_FOLDER/arch/arm64/configs/gki_defconfig" <<EOF
+        CONFIG_ANDROID_BINDER_IPC_RUST=m
+        CONFIG_RUST=y
+        EOF
 
     - name: Save Build Metadata
       id: save_metadata
@@ -1384,13 +1384,13 @@ runs:
         CUSTOM_LOCALVERSION="-${ANDROID_VER}-${OP_UNAME}"
         echo "CUSTOM_LOCALVERSION=$CUSTOM_LOCALVERSION" >> "$GITHUB_ENV"
 
-    # - name: Disable GPUEB
-      # shell: bash
-      # if: ${{ env.KERNEL_VER == '5.10' && (startsWith(env.OP_SOC, 'dimensity') || startsWith(env.OP_SOC, 'helio')) }}
-      # run: |
-        # set -euo pipefail
-        # echo "Disabling GPUEB for MTK kernel 5.10"
-        # sed -i '/obj-y.*gpueb/d' "$COMMON_KERNEL_FOLDER/drivers/gpu/mediatek/Makefile"
+    - name: Disable GPUEB
+      shell: bash
+      if: ${{ env.KERNEL_VER == '5.10' && (startsWith(env.OP_SOC, 'dimensity') || startsWith(env.OP_SOC, 'helio')) }}
+      run: |
+        set -euo pipefail
+        echo "Disabling GPUEB for MTK kernel 5.10"
+        sed -i '/obj-y.*gpueb/d' "$COMMON_KERNEL_FOLDER/drivers/gpu/mediatek/Makefile"
 
     - name: Build Kernel
       shell: bash
